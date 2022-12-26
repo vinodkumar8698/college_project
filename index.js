@@ -1,5 +1,6 @@
 const express = require("express")
 const app = express()
+const jwt = require('jsonwebtoken');
 const PORT = 5000
 const cors = require("cors");
 
@@ -9,8 +10,9 @@ app.use(cors());
 app.get("/about", (req, res) => {
     res.status(200).send('hello from about server')
 })
-// const app = express.app();
-// var ObjectId = require("mongodb").ObjectID;
+
+
+
 const bcrypt = require('bcrypt');
 require("./connectDB");
 
@@ -49,6 +51,28 @@ app.post('/signup', async (req, res) => {
     res.status(200).send("user created successfully");
 });
 
+
+app.post("/signin", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const User = require("./userSchema");
+        const user = await User.findOne({ email });
+        if (user) {
+            const cmp = await bcrypt.compare(req.body.password, user.password);
+            if (cmp) {
+                const token = jwt.sign({ email }, 'secret_key');
+                res.status(200).send(token);
+            } else {
+                res.send("Wrong username or password.");
+            }
+        } else {
+            res.send("Wrong username or password.");
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
+})
 
 app.listen(PORT, () => {
     console.log(`server is started on port ${PORT}` || 8080)
