@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const DB = "mongodb+srv://vinay8698:Smart%40123@vinay8698.kvuxg.mongodb.net/?retryWrites=true&w=majority";
 
 // Database Connection
+mongoose.set('strictQuery', false);
 mongoose
     .connect(DB, {
         useNewUrlParser: true,
