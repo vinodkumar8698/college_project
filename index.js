@@ -13,3 +13,5 @@ app.get("/about", (req, res) => {
 app.listen(PORT, () => {
     console.log(`server is started on port ${PORT}` || 8080)
 })
+
+module.exports = app;
