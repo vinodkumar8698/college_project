@@ -58,19 +58,19 @@ app.post("/signin", async (req, res) => {
         const user = await User.findOne({ email });
         if (user) {
             const userId = user._id;
-            console.log("file: index.js:61  app.post  userId", userId)
             const cmp = await bcrypt.compare(req.body.password, user.password);
             if (cmp) {
                 const token = jwt.sign({ email }, 'secret_key');
                 res.status(200).send({ token: token, userId: userId });
             } else {
-                res.send("Wrong username or password.");
+                res.status(422).send("wrong username or password.");
             }
         } else {
-            res.send("Wrong username or password.");
+            res.status(423).send("user not found");
         }
     } catch (error) {
         console.log(error);
+        res.status(424).send("server error: " + error.message)
     }
 
 })
