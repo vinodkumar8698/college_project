@@ -3,7 +3,6 @@ const app = express()
 const jwt = require('jsonwebtoken');
 const PORT = 5000
 const cors = require("cors");
-
 app.use(express.json())
 app.use(cors());
 
@@ -58,10 +57,12 @@ app.post("/signin", async (req, res) => {
         const User = require("./userSchema");
         const user = await User.findOne({ email });
         if (user) {
+            const userId = user._id;
+            console.log("file: index.js:61  app.post  userId", userId)
             const cmp = await bcrypt.compare(req.body.password, user.password);
             if (cmp) {
                 const token = jwt.sign({ email }, 'secret_key');
-                res.status(200).send(token);
+                res.status(200).send({ token: token, userId: userId });
             } else {
                 res.send("Wrong username or password.");
             }
