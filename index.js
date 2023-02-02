@@ -77,6 +77,12 @@ app.post("/signin", async (req, res) => {
 
 // Doctor 
 
+app.get('/users', async (req, res) => {
+    const User = require("./userSchema");
+    const users = await User.find();
+    res.send(users);
+});
+
 app.post('/doctor/signup', async (req, res) => {
     // Validate the user's input
     const { fullname, email, password, gender } = req.body;
@@ -124,7 +130,7 @@ app.post("/doctor/signin", async (req, res) => {
                 res.status(422).send("wrong username or password.");
             }
         } else {
-            res.status(423).send("user not found");
+            res.status(423).send("details not found");
         }
     } catch (error) {
         res.status(424).send("server error: " + error.message)
@@ -132,6 +138,12 @@ app.post("/doctor/signin", async (req, res) => {
     }
 
 })
+
+app.get('/doctors', async (req, res) => {
+    const Doctor = require("./doctorSchema");
+    const users = await Doctor.find();
+    res.send(users);
+});
 
 
 app.listen(PORT, () => {
