@@ -10,6 +10,9 @@ app.get("/about", (req, res) => {
     res.status(200).send('hello from about server')
 })
 
+const Request = require("./requestSchema");
+const User = require("./userSchema");
+const Doctor = require("./doctorSchema");
 
 
 const bcrypt = require('bcrypt');
@@ -139,10 +142,64 @@ app.post("/doctor/signin", async (req, res) => {
 
 })
 
-app.get('/doctors', async (req, res) => {
-    const Doctor = require("./doctorSchema");
-    const users = await Doctor.find();
-    res.send(users);
+// app.get('/doctors', async (req, res) => {
+//     const Doctor = require("./doctorSchema");
+//     const users = await Doctor.find();
+//     res.send(users);
+// });
+
+app.get("/getDoctors", async (req, res) => {
+    const { userId } = req.query;
+    try {
+        const sentRequests = await Request.find({ userId });
+        const sentDoctorIds = sentRequests.map(request => request.doctorId);
+        const user = await User.findById(userId);
+        const availableDoctors = await Doctor.find({
+            _id: { $nin: sentDoctorIds },
+            specialty: user.specialty
+        });
+        res.status(200).send(availableDoctors);
+    } catch (e) {
+        console.log("index.js 163", e);
+    }
+
+});
+
+app.post("/sendRequest", async (req, res) => {
+    const { userId, doctorId } = req.body;
+    try {
+        const existingRequest = await Request.findOne({ userId, doctorId });
+        if (existingRequest) {
+            res.send({ message: "Request already sent." });
+        } else {
+            const request = new Request({ userId, doctorId, status: "pending" });
+            await request.save();
+            res.status(200).send({ message: "Request sent successfully." });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
+});
+
+app.get("/getRequests", async (req, res) => {
+    const { doctorId } = req.query;
+    try {
+        const requests = await Request.find({ doctorId });
+        const userIds = requests.map(request => request.userId);
+        const users = await User.find({ _id: { $in: userIds } }, "_id fullname");
+        const requestsWithUserDetails = requests.map(request => {
+            const matchingUser = users.find(user => user._id.toString() === request.userId.toString());
+            return {
+                userId: request.userId,
+                name: matchingUser.fullname
+            };
+        });
+
+        res.send(requestsWithUserDetails);
+    } catch (e) {
+        console.error(e);
+    }
 });
 
 
