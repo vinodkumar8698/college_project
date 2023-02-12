@@ -64,7 +64,7 @@ app.post("/signin", async (req, res) => {
             const cmp = await bcrypt.compare(req.body.password, user.password);
             if (cmp) {
                 const token = jwt.sign({ email }, 'secret_key');
-                res.status(200).send({ token: token, userId: userId });
+                res.status(200).send({ token: token, userId: userId, user });
             } else {
                 res.status(422).send("wrong username or password.");
             }
@@ -128,7 +128,7 @@ app.post("/doctor/signin", async (req, res) => {
             const cmp = await bcrypt.compare(req.body.password, doctor.password);
             if (cmp) {
                 const token = jwt.sign({ email }, 'secret_key');
-                res.status(200).send({ token: token, docterId: doctorId });
+                res.status(200).send({ token: token, docterId: doctorId, doctor });
             } else {
                 res.status(422).send("wrong username or password.");
             }
