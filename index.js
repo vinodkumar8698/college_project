@@ -13,7 +13,7 @@ app.get("/about", (req, res) => {
 const Request = require("./requestSchema");
 const User = require("./userSchema");
 const Doctor = require("./doctorSchema");
-
+const Messages = require("./messagesSchema");
 
 const bcrypt = require('bcrypt');
 require("./connectDB");
@@ -202,6 +202,40 @@ app.get("/getRequests", async (req, res) => {
     }
 });
 
+app.post('/send-message', (req, res) => {
+    const { sender, recipient, message } = req.body;
+
+    const newMessage = new Messages({
+        sender,
+        recipient,
+        message,
+    });
+
+    newMessage.save((err) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send('Error sending message');
+        } else {
+            res.send('Message sent successfully');
+        }
+    });
+});
+
+app.post('/messages', (req, res) => {
+    const { user, doctor } = req.body;
+
+    Messages.find(
+        { $or: [{ sender: user, recipient: doctor }, { sender: doctor, recipient: user }] },
+        (err, messages) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send('Error retrieving messages');
+            } else {
+                res.json(messages);
+            }
+        }
+    );
+});
 
 app.listen(PORT, () => {
     console.log(`server is started on port ${PORT}` || 8080)
