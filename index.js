@@ -204,6 +204,9 @@ app.put('/users/requests/accept', async (req, res) => {
 app.get('/users/accepted-list', async (req, res) => {
     const { doctorId } = req.body;
     try {
+        if (!doctorId) {
+            return res.status(400).json({ message: "Please provide doctorId" });
+        }
         const requests = await Request.find({
             doctorId: doctorId,
             status: 'accepted',
