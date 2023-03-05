@@ -3,6 +3,7 @@ const app = express()
 const jwt = require('jsonwebtoken');
 const PORT = 5000
 const cors = require("cors");
+const mongoose = require("mongoose");
 app.use(express.json())
 app.use(cors());
 
@@ -182,6 +183,77 @@ app.post("/sendRequest", async (req, res) => {
 
 });
 
+app.put('/users/requests/accept', async (req, res) => {
+    const { userId, doctorId } = req.body;
+    try {
+        const request = await Request.findOneAndUpdate(
+            { userId: userId, doctorId: doctorId, status: 'pending' },
+            { status: 'accepted' },
+            { new: true }
+        );
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+        res.json(request);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// doctor accepted list by doctor id
+app.get('/users/accepted-list', async (req, res) => {
+    const { doctorId } = req.body;
+    try {
+        const requests = await Request.find({
+            doctorId: doctorId,
+            status: 'accepted',
+        }).populate('doctorId', 'fullname _id').populate('userId', 'fullname _id');
+
+        const userIds = requests.map(request => request.userId);
+        const users = await User.find({ _id: { $in: userIds } }, "_id fullname");
+        const requestsWithUserDetails = requests.map(request => {
+            const matchingUser = users.find(user => user._id.toString() === request?.userId.toString());
+            return {
+                userId: request.userId,
+                name: matchingUser.fullname
+            };
+        });
+        res.json(requestsWithUserDetails);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// accepted list of doctors by user id
+app.get('/doctors/accepted-list', async (req, res) => {
+    const { userId } = req.body
+    console.log(userId)
+    try {
+        if (!userId) {
+            return res.status(400).json({ message: "Please provide userId" });
+        }
+        const requests = await Request.find({
+            userId,
+            status: 'accepted'
+        })
+            .populate('doctorId', 'fullname')
+            .select('doctorId');
+        const doctorIds = requests.map(request => request.doctorId);
+        const doctors = await Doctor.find({ _id: { $in: doctorIds } }, "_id fullname");
+        const requestsWithUserDetails = requests.map(request => {
+            const matchingDoctor = doctors.find(doctor => doctor._id.toString() === request?.doctorId.toString());
+            return {
+                doctorId: request.doctorId,
+                name: matchingDoctor.fullname
+            };
+        });
+        res.json(requestsWithUserDetails);
+        // res.json(requests);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 app.get("/getRequests", async (req, res) => {
     const { doctorId } = req.query;
     try {
@@ -195,7 +267,6 @@ app.get("/getRequests", async (req, res) => {
                 name: matchingUser.fullname
             };
         });
-
         res.send(requestsWithUserDetails);
     } catch (e) {
         console.error(e);
