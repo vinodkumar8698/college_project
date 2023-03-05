@@ -201,7 +201,7 @@ app.put('/users/requests/accept', async (req, res) => {
 });
 
 // doctor accepted list by doctor id
-app.get('/users/accepted-list', async (req, res) => {
+app.post('/users/accepted-list', async (req, res) => {
     const { doctorId } = req.body;
     try {
         if (!doctorId) {
