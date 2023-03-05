@@ -228,9 +228,8 @@ app.post('/users/accepted-list', async (req, res) => {
 });
 
 // accepted list of doctors by user id
-app.get('/doctors/accepted-list', async (req, res) => {
+app.post('/doctors/accepted-list', async (req, res) => {
     const { userId } = req.body
-    console.log(userId)
     try {
         if (!userId) {
             return res.status(400).json({ message: "Please provide userId" });
