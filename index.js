@@ -257,7 +257,7 @@ app.get('/doctors/accepted-list', async (req, res) => {
 app.get("/getRequests", async (req, res) => {
     const { doctorId } = req.query;
     try {
-        const requests = await Request.find({ doctorId });
+        const requests = await Request.find({ doctorId, status: "pending" });
         const userIds = requests.map(request => request.userId);
         const users = await User.find({ _id: { $in: userIds } }, "_id fullname");
         const requestsWithUserDetails = requests.map(request => {
