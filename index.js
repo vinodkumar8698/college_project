@@ -203,11 +203,12 @@ app.get("/getRequests", async (req, res) => {
 });
 
 app.post('/send-message', (req, res) => {
-    const { sender, recipient, message } = req.body;
+    const { sender, recipient, message, who } = req.body;
 
     const newMessage = new Messages({
         sender,
         recipient,
+        who,
         message,
     });
 
