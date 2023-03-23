@@ -311,6 +311,37 @@ app.post('/messages', (req, res) => {
     );
 });
 
+app.post('/api/health-data', (req, res) => {
+    const UserHealth = require("./userHealthSchema");
+    const { userId, heartrate, spo2, bodytemp, date, time } = req.body;
+
+    // Create new heart rate data object
+    const newUserHealth = new UserHealth({ userId, heartrate, date, time, spo2, bodytemp, });
+
+    newUserHealth.save((err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ message: 'Heart rate data saved successfully' });
+        }
+    });
+});
+
+app.get('/api/health-data', (req, res) => {
+    const { userId, date } = req.body;
+    const UserHealth = require("./userHealthSchema");
+    // Find heart rate data for specified user, date, an
+    UserHealth.findOne({ userId, date }, (err, data) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else if (!data) {
+            res.status(404).json({ error: 'Heart rate data not found' });
+        } else {
+            res.json(data);
+        }
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`server is started on port ${PORT}` || 8080)
 })
