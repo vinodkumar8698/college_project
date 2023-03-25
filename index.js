@@ -327,7 +327,7 @@ app.post('/api/health-data', (req, res) => {
     });
 });
 
-app.get('/api/health-data', (req, res) => {
+app.post('/api/get-health-data', (req, res) => {
     const { userId, date, time } = req.body;
     const UserHealth = require("./userHealthSchema");
     const searchCriteria = { userId, date };
