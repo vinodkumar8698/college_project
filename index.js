@@ -328,14 +328,18 @@ app.post('/api/health-data', (req, res) => {
 });
 
 app.get('/api/health-data', (req, res) => {
-    const { userId, date } = req.body;
+    const { userId, date, time } = req.body;
     const UserHealth = require("./userHealthSchema");
-    // Find heart rate data for specified user, date, an
-    UserHealth.findOne({ userId, date }, (err, data) => {
+    const searchCriteria = { userId, date };
+    if (time) {
+        searchCriteria.time = time;
+    }
+    // Find heart rate data for specified user and date
+    UserHealth.find(searchCriteria, (err, data) => {
         if (err) {
             res.status(500).json({ error: err.message });
-        } else if (!data) {
-            res.status(404).json({ error: 'Heart rate data not found' });
+        } else if (!data || data.length === 0) {
+            res.status(404).json({ error: 'User Health data not found' });
         } else {
             res.json(data);
         }
