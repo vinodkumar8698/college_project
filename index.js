@@ -341,7 +341,7 @@ app.post('/api/get-health-data', (req, res) => {
         } else if (!data || data.length === 0) {
             res.status(404).json({ error: 'User Health data not found' });
         } else {
-            res.json(data[0]);
+            res.json(data);
         }
     });
 });
