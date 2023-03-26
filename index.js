@@ -245,8 +245,8 @@ app.post('/doctors/accepted-list', async (req, res) => {
         const requestsWithUserDetails = requests.map(request => {
             const matchingDoctor = doctors.find(doctor => doctor._id.toString() === request?.doctorId.toString());
             return {
-                doctorId: request.doctorId,
-                name: matchingDoctor.fullname
+                doctorId: request?.doctorId,
+                name: matchingDoctor?.fullname
             };
         });
         res.json(requestsWithUserDetails);
@@ -264,9 +264,10 @@ app.get("/getRequests", async (req, res) => {
         const users = await User.find({ _id: { $in: userIds } }, "_id fullname");
         const requestsWithUserDetails = requests.map(request => {
             const matchingUser = users.find(user => user._id.toString() === request.userId.toString());
+            console.log("file: index.js:267 ~~ requestsWithUserDetails ~~ matchingUser:", matchingUser)
             return {
-                userId: request.userId,
-                name: matchingUser.fullname
+                userId: request?.userId,
+                name: matchingUser?.fullname
             };
         });
         res.send(requestsWithUserDetails);
