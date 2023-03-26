@@ -200,7 +200,7 @@ app.put('/users/requests/accept', async (req, res) => {
     }
 });
 
-// doctor accepted list by doctor id
+// doctor accepted list by user id
 app.post('/users/accepted-list', async (req, res) => {
     const { doctorId } = req.body;
     try {
@@ -217,8 +217,8 @@ app.post('/users/accepted-list', async (req, res) => {
         const requestsWithUserDetails = requests.map(request => {
             const matchingUser = users.find(user => user._id.toString() === request?.userId.toString());
             return {
-                userId: request.userId,
-                name: matchingUser.fullname
+                userId: request?.userId,
+                name: matchingUser?.fullname
             };
         });
         res.json(requestsWithUserDetails);
